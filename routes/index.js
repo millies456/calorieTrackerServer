@@ -7,10 +7,10 @@ app.use(express.json()); //adding "middleware"
 
 //an array of course objects with 2 attributes each
 const courses = [
-  {id: 367, name: 'math'},
-  {id: 418, name: 'software engineering'},
-  {id: 410, name: 'databases'},
-  {id: 499, name: 'capstone'},
+  {id: 1, name: 'math'},
+  {id: 2, name: 'software engineering'},
+  {id: 3, name: 'databases'},
+  {id: 4, name: 'capstone'},
 ];
 
 
@@ -44,18 +44,10 @@ app.get('/api/posts/:year/:month', (req, res) => {
 
 
 app.post('/api/courses', (req, res)=> {
-  const schema ={
-    name: Joi.string().min(3).required()
-  };
-
-  const result = Joi.valid(req.body, schema);
-  console.log(result);
-
-  if(result.error()) {
-    //400 means Bad request
-    res.status(400).send('oopsie');
-  }
-
+  // const {error} = validateCourse(req.body);
+  // if(error) {
+  //   res.status(400).send('post oopsie');
+  // }
   const course = {
    id: courses.length+1,
    name: req.body.name
@@ -63,6 +55,8 @@ app.post('/api/courses', (req, res)=> {
   courses.push(course);
   res.send(course);
 });
+
+
 
 // app.post('/api/food/makeFile', (req, res)=>{
 //   fs.appendFile('oopsies.txt', 'Hello pizz!', function (err) {
@@ -74,19 +68,58 @@ app.post('/api/courses', (req, res)=> {
 ////////////////////////////////// PUT ROUTE HANDLERS ///////////////////////////////////////
 
 app.put('/api/courses/:id', (req, res) =>{
-  //look up the course
-  // if course doesn't exist, return 404
+  //console.log(req.params.id);
+  const course=courses.find(c=> c.id === parseInt(req.params.id));
+  if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
 
   //validate the course,
   //if invalid, return 400 = Bad request
 
+ // const result = validateCourse(req.body);
+
+  //"object destructuring"
+  //const {error} = validateCourse(req.body);
+  // if(error) {
+  //   res.status(400).send(`put oopsie ${req.params.id}`);
+  // }
+
   //update course
+  course.name = req.body.name;
+
   //return updated course to the client
+  res.send(course.name);
 });
 
 
 
 
+
+
+/////////////////////////// DELETE ROUTE HANDLERS ////////////////////////////////////
+
+app.delete('/api/courses/:id', (req, res) => {
+  //look up course
+  const course=courses.find(c=> c.id === parseInt(req.params.id));
+  //if not there => return 404
+  if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
+
+
+  //else delete it
+  const index = courses.indexOf(course);
+  courses.splice(index, 1);//seems like there's 10 other ways to delete this object, here's one way
+
+  //return the course that was deleted to client
+  res.send(course);
+});
+
+
+
+function validateCourse(course){
+  const schema ={
+    name: Joi.string().min(3).required()
+  };
+  return result= Joi.valid(course, schema);
+}
 
 
 const port = process.env.PORT || 3001;
