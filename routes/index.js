@@ -1,16 +1,16 @@
 const express = require('express');
-const app = express();
+
+var router = express.Router();
 const fs = require('fs');
 const Joi = require('joi');
-
-app.use(express.json()); //adding "middleware"
+const cors = require('cors');
 
 //an array of course objects with 2 attributes each
 const courses = [
-  {id: 1, name: 'pizza'},
-  {id: 2, name: 'salad'},
-  {id: 3, name: 'ice cream'},
-  {id: 4, name: 'apples'},
+  {id: 1, name: 'pizza', calories:500},
+  {id: 2, name: 'salad', calories: 100},
+  {id: 3, name: 'ice cream', calories: 700},
+  {id: 4, name: 'apples', calories: 70},
 ];
 
 
@@ -20,37 +20,38 @@ const courses = [
 //"route handler function"
 //first arg = path or URL
 //second arg = call back function
-app.get('/', function(req, res) {
+router.get('/', function(req, res) {
   res.send('Hello world');
 });
 
 //send our courses array
-app.get('/api/foods', (req, res) => {
+router.get('/api/foods',cors(), (req, res) => {
   res.send(courses);
 })
 
 //checks the courses array to find one with matching id, request was made as a string so parseInt
-app.get('/api/foods/:id', (req, res) =>{
+router.get('/api/foods/:id',cors(), (req, res) =>{
   const course=courses.find(c=> c.id === parseInt(req.params.id));
   if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
   res.send(course);
 })
 
-app.get('/api/posts/:year/:month', (req, res) => {
+router.get('/api/posts/:year/:month', (req, res) => {
   res.send(req.query);
 })
 
 ////////////////////////////////// POST ROUTE HANDLERS ///////////////////////////////////////
 
 
-app.post('/api/foods', (req, res)=> {
+router.post('/api/foods', (req, res)=> {
   // const {error} = validateCourse(req.body);
   // if(error) {
   //   res.status(400).send('post oopsie');
   // }
   const course = {
    id: courses.length+1,
-   name: req.body.name
+   name: req.body.name,
+    calories: req.body.calories
   };
   courses.push(course);
   res.send(course);
@@ -67,7 +68,7 @@ app.post('/api/foods', (req, res)=> {
 
 ////////////////////////////////// PUT ROUTE HANDLERS ///////////////////////////////////////
 
-app.put('/api/foods/:id', (req, res) =>{
+router.put('/api/foods/:id', (req, res) =>{
   //console.log(req.params.id);
   const course=courses.find(c=> c.id === parseInt(req.params.id));
   if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
@@ -97,7 +98,7 @@ app.put('/api/foods/:id', (req, res) =>{
 
 /////////////////////////// DELETE ROUTE HANDLERS ////////////////////////////////////
 
-app.delete('/api/foods/:id', (req, res) => {
+router.delete('/api/foods/:id', (req, res) => {
   //look up course
   const course=courses.find(c=> c.id === parseInt(req.params.id));
   //if not there => return 404
@@ -122,7 +123,4 @@ function validateCourse(course){
 }
 
 
-const port = process.env.PORT || 3001;
-app.listen(port, () => console.log(`listening on port: ${port}`) )
-
-module.exports = app;
+module.exports = router;
