@@ -6,39 +6,61 @@ const Joi = require('joi');
 const cors = require('cors');
 
 //an array of course objects with 2 attributes each
-const courses = [
+const foods = [
   {id: 1, name: 'pizza', calories:500},
   {id: 2, name: 'salad', calories: 100},
   {id: 3, name: 'ice cream', calories: 700},
   {id: 4, name: 'apples', calories: 70},
 ];
 
+const activities = [
+  {id: 1, name: 'running', minuteDuration:15, caloriesPerMinute:11},
+  {id: 2, name: 'swimming', minuteDuration:30, caloriesPerMinute:15},
+  {id: 3, name: 'walking', minuteDuration:120, caloriesPerMinute:7},
+  {id: 4, name: 'basketball', minuteDuration:45, caloriesPerMinute:14},
+];
+
+const days = [
+  {date: 1, intake: 1500, burned: 500},
+  {date: 2, intake: 1300, burned: 600},
+  {date: 3, intake: 1900, burned: 700},
+];
 
 ////////////////////////////////// GET ROUTE HANDLERS ///////////////////////////////////////
 
 
-//"route handler function"
-//first arg = path or URL
-//second arg = call back function
-router.get('/', function(req, res) {
-  res.send('Hello world');
-});
-
-//send our courses array
 router.get('/api/foods',cors(), (req, res) => {
-  res.send(courses);
+  res.send(foods);
 })
 
-//checks the courses array to find one with matching id, request was made as a string so parseInt
-router.get('/api/foods/:id',cors(), (req, res) =>{
-  const course=courses.find(c=> c.id === parseInt(req.params.id));
-  if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
-  res.send(course);
+
+router.get('/api/activities',cors(), (req, res) => {
+  res.send(activities);
 })
 
-router.get('/api/posts/:year/:month', (req, res) => {
-  res.send(req.query);
+router.get('/api/days',cors(), (req, res) => {
+  res.send(days);
 })
+
+
+////////////////////////////////// GET ROUTE HANDLERS ///////////////////////////////////////
+
+
+//checks the activities array to find one with matching id, request was made as a string so parseInt
+router.get('/api/activities/:id',cors(), (req, res) =>{
+  const activity=activities.find(c=> c.id === parseInt(req.params.id));
+  //if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
+  res.send(activity);
+})
+
+router.get('/api/foods/:name', cors(), (req, res) => {
+  const food=foods.find(req.params.name);
+  res.send(food);
+})
+
+
+
+
 
 ////////////////////////////////// POST ROUTE HANDLERS ///////////////////////////////////////
 
@@ -48,14 +70,46 @@ router.post('/api/foods', (req, res)=> {
   // if(error) {
   //   res.status(400).send('post oopsie');
   // }
-  const course = {
-   id: courses.length+1,
+  const food = {
+   id: foods.length+1,
    name: req.body.name,
-    calories: req.body.calories
+    caloriesOut: req.body.calories
   };
-  courses.push(course);
-  res.send(course);
+  foods.push(food);
+  res.send(food);
 });
+
+router.post('/api/activities', (req, res)=> {
+  // const {error} = validateCourse(req.body);
+  // if(error) {
+  //   res.status(400).send('post oopsie');
+  // }
+  const activity = {
+    id: activities.length+1,
+    name: req.body.name,
+    minuteDuration: req.body.minuteDuration,
+    caloriesPerMinute: req.body.caloriesPerMinute
+  };
+  activities.push(activity);
+  res.send(activity);
+});
+
+router.post('/api/days', (req, res)=> {
+  // const {error} = validateCourse(req.body);
+  // if(error) {
+  //   res.status(400).send('post oopsie');
+  // }
+  const day = {
+    date: days.length+1,
+    intake: req.body.intake,
+    burned: req.body.burned
+  };
+  days.push(day);
+  res.send(day);
+});
+
+////////////////////////////////// POST ROUTE HANDLERS ///////////////////////////////////////
+
 
 
 
@@ -68,10 +122,10 @@ router.post('/api/foods', (req, res)=> {
 
 ////////////////////////////////// PUT ROUTE HANDLERS ///////////////////////////////////////
 
-router.put('/api/foods/:id', (req, res) =>{
+router.put('/api/activities/:id', (req, res) =>{
   //console.log(req.params.id);
-  const course=courses.find(c=> c.id === parseInt(req.params.id));
-  if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
+  const course=activities.find(c=> c.id === parseInt(req.params.id));
+  if(!course) res.status(404).send('404!!!  id was not found'); //404 means object not found
 
   //validate the course,
   //if invalid, return 400 = Bad request
@@ -98,16 +152,15 @@ router.put('/api/foods/:id', (req, res) =>{
 
 /////////////////////////// DELETE ROUTE HANDLERS ////////////////////////////////////
 
-router.delete('/api/foods/:id', (req, res) => {
+router.delete('/api/activities/:id', (req, res) => {
   //look up course
-  const course=courses.find(c=> c.id === parseInt(req.params.id));
+  const course=activities.find(c=> c.id === parseInt(req.params.id));
   //if not there => return 404
-  if(!course) res.status(404).send('404!!! course with given id was not found'); //404 means object not found
-
+  if(!course) res.status(404).send('404!!!  id was not found'); //404 means object not found
 
   //else delete it
-  const index = courses.indexOf(course);
-  courses.splice(index, 1);//seems like there's 10 other ways to delete this object, here's one way
+  const index = activities.indexOf(course);
+  activities.splice(index, 1);//seems like there's 10 other ways to delete this object, here's one way
 
   //return the course that was deleted to client
   res.send(course);
