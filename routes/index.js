@@ -1,9 +1,10 @@
 const express = require('express');
-
+const Mongo = require('./../models/article')
 var router = express.Router();
 const fs = require('fs');
 const Joi = require('joi');
 const cors = require('cors');
+
 
 //an array of course objects with 2 attributes each
 const foods = [
@@ -58,6 +59,9 @@ router.get('/api/foods/:name', cors(), (req, res) => {
   res.send(food);
 })
 
+router.get('/:id', cors(), (req, res) => {
+
+})
 
 
 
@@ -107,6 +111,22 @@ router.post('/api/days', (req, res)=> {
   days.push(day);
   res.send(day);
 });
+
+router.post('/api/days', async (req, res)=> {
+let Mongo = new Mongo({
+  food: req.body.food,
+  activity: req.body.activity,
+  day : req.body.day
+})
+try{
+
+Mongo = await Mongo.save()
+res.redirect(`/index/${Mongo.id}`)
+}catch(e){
+  res.render('/index/new', {Mongo: Mongo})
+}
+
+})
 
 ////////////////////////////////// POST ROUTE HANDLERS ///////////////////////////////////////
 
